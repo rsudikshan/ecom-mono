@@ -8,6 +8,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	migrate "github.com/rubenv/sql-migrate"
 )
 
 func NewDb(env *Env) *gorm.DB{
@@ -34,4 +35,26 @@ func NewDb(env *Env) *gorm.DB{
 	}
 
 	return db
+}
+
+func Migrate(db *gorm.DB,){
+	migrations := &migrate.FileMigrationSource{
+		Dir: "migrations/",
+	}	
+
+	sqlDB, err := db.DB()
+
+	if err!=nil {
+		log.Fatal(err.Error())
+	}
+
+	log.Default().Print("running migrations")
+
+	_,err = migrate.Exec(sqlDB,"postgres", migrations, migrate.Up)
+
+	if err!=nil {
+		log.Fatal(err.Error())
+	}
+
+	log.Default().Print("migration successful")
 }

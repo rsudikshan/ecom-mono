@@ -11,6 +11,7 @@ import (
 func Run() {
 	env := infrastructure.NewEnv()
 	db := infrastructure.NewDb(env)
+	infrastructure.Migrate(db)
 	router := infrastructure.NewAppRouter(env)
 	
 	userRepo := repository.NewUserRepo(db)
