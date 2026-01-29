@@ -1,9 +1,9 @@
 package dtos
 
-type UserRegisterParams struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Email	 string `json:"email"`
+type UserSignUpParams struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required,min=6"`
+	Email	 string `json:"email" binding:"required"`
 }
 
 type UserLoginParams struct {

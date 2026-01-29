@@ -23,5 +23,9 @@ func (h *Handler) HandleError(ctx *gin.Context, err error) {
 		ctx.JSON(int(errcode),gin.H{"err":errResp})
 		return
 	}
-	ctx.JSON(http.StatusBadRequest,gin.H{"err":err.Error()})
+	ctx.JSON(http.StatusBadRequest,gin.H{"error":err.Error()})
+}
+
+func (h *Handler) JSON(ctx *gin.Context,code uint, b any){
+	ctx.JSON(int(code), gin.H{"message":b})
 }

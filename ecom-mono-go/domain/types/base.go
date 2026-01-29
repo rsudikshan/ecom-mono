@@ -17,11 +17,11 @@ type Base struct {
 
 type ID string
 
-func (id ID) NewID() ID {
+func NewID() ID {
 	return ID(ksuid.New().String())
 }
 
-func (id ID) NewIDFromString(idStr string) (ID,error){
+func NewIDFromString(idStr string) (ID,error){
 	parsedId,err := ksuid.Parse(idStr)
 	if err!=nil {
 		return "",err
@@ -30,8 +30,12 @@ func (id ID) NewIDFromString(idStr string) (ID,error){
 	return ID(parsedId.String()),nil
 }
 
+func (id ID) String() string {
+	return string(id)
+}
+
 func (id ID) MarshalJSON() ([]byte,error) {
-	return json.Marshal(id)
+	return json.Marshal(string(id))
 }
 
 func (id ID) IsValid() bool {

@@ -7,7 +7,7 @@ import (
 )
 
 type UserService interface {
-	SaveUser(ctx context.Context, user *types.User) (*types.User, error)
+	CreateUser(ctx context.Context, user *types.User) (*types.User, error)
 }
 
 type userService struct {
@@ -20,6 +20,6 @@ func NewUserService(userRepo repository.UserRepo) UserService{
 	}
 }
 
-func (s *userService) SaveUser(ctx context.Context, user *types.User) (*types.User, error){
-	return s.userRepo.SaveUser(ctx, user)
+func (s *userService) CreateUser(ctx context.Context, user *types.User) (*types.User, error){
+	return s.userRepo.CreateUser(ctx, user)
 }

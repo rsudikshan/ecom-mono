@@ -3,12 +3,16 @@ package repository
 import (
 	"context"
 	"ecom-mono-go/domain/types"
+	"ecom-mono-go/utils/apperror"
+	"fmt"
+	"net/http"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 type UserRepo interface {
-	SaveUser(ctx context.Context, user *types.User)(*types.User, error)
+	CreateUser(ctx context.Context, user *types.User)(*types.User, error)
 }
 
 type userRepo struct {
@@ -21,10 +25,20 @@ func NewUserRepo(db *gorm.DB) UserRepo{
 	}
 }
 
-func (r *userRepo) SaveUser(ctx context.Context, user *types.User)(*types.User, error){
-	if err:=r.db.Create(user).Error; err!=nil{
+func (r *userRepo) CreateUser(ctx context.Context, user *types.User)(*types.User, error){
+	err:=r.db.Create(user).Error
+
+	if err!=nil {
+		if IsDuplicateError(err){
+			switch{
+				case strings.Contains(err.Error(), "users_email_key"):
+					return nil, apperror.New(http.StatusBadRequest, fmt.Errorf("the user with %s email is already registered:",user.Email))
+				
+				default :
+					return nil, err
+			}
+		}
 		return nil,err
 	}
-
 	return user,nil
 }
