@@ -1,6 +1,7 @@
 package base
 
 import (
+	"ecom-mono-go/infrastructure/mail"
 	"ecom-mono-go/utils/apperror"
 	"net/http"
 
@@ -8,6 +9,7 @@ import (
 )
 
 type Handler struct {
+	mailSender mail.MailSender
 }
 
 func NewBaseHandler() *Handler {

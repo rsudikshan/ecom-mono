@@ -12,16 +12,19 @@ import (
 
 type AuthHandler interface {
 	Signup(ctx *gin.Context)
+	GetEmailVerificationLink(ctx *gin.Context)
 }
 
 type authHandler struct {
 	userService service.UserService
+	authService service.AuthService
 	*base.Handler
 }
 
-func NewAuthHandler(h *base.Handler, userService service.UserService) AuthHandler {
+func NewAuthHandler(h *base.Handler, userService service.UserService, authService service.AuthService) AuthHandler {
 	return &authHandler{
 		userService: userService,
+		authService: authService,
 	}
 }
 
@@ -41,13 +44,24 @@ func (h *authHandler) Signup(ctx *gin.Context) {
 		Email: registerParam.Email,
 	}
 
-	//user,err := h.userService.CreateUser(ctx, user)
-	_,err = h.userService.CreateUser(ctx, user)
+	m, err := h.userService.CreateUser(ctx, user)
 
 	if err!=nil {
 		h.HandleError(ctx, err)
 		return
 	}
 
-	h.JSON(ctx, http.StatusOK, "Registration succsseful. Email Verification link has been sent to your email. Procced to verify email.")
+
+	err = h.authService.SendEmailVerificationToken(ctx, m.Email)
+
+	if err!=nil {
+		h.HandleError(ctx, err)
+		return
+	}
+
+	h.JSON(ctx, http.StatusOK, "Registration succsessful. Email Verification link has been sent to your email. Procced to verify email.")
+}
+
+func (h *authHandler) GetEmailVerificationLink(ctx *gin.Context) {
+	
 }

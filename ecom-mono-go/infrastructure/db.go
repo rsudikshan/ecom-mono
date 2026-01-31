@@ -3,7 +3,6 @@ package infrastructure
 import (
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -14,10 +13,10 @@ import (
 func NewDb(env *Env) *gorm.DB{
 	connStr := fmt.
 	Sprintf("user=%s password=%s dbname=%s sslmode=disable host=localhost port=%s",
-	os.Getenv("DB_USER"),
-	os.Getenv("DB_PASSWORD"),
-	os.Getenv("DB_NAME"),
-	os.Getenv("DB_SERVER_PORT"),
+	env.DB_USER,
+	env.DB_PASSWORD,
+	env.DB_NAME,
+	env.DB_SERVER_PORT,
 	)
 	db,err := gorm.Open(postgres.Open(connStr),&gorm.Config{})
 
