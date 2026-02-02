@@ -8,6 +8,8 @@ import (
 
 type UserService interface {
 	CreateUser(ctx context.Context, user *types.User) (*types.User, error)
+	GetUser(ctx context.Context, ID types.ID) (*types.User, error)
+	UpdateUser(ctx context.Context, user *types.User) (*types.User, error)
 }
 
 type userService struct {
@@ -23,3 +25,12 @@ func NewUserService(userRepo repository.UserRepo) UserService{
 func (s *userService) CreateUser(ctx context.Context, user *types.User) (*types.User, error){
 	return s.userRepo.CreateUser(ctx, user)
 }
+
+func (s *userService) UpdateUser(ctx context.Context, user *types.User) (*types.User, error){
+	return s.userRepo.UpdateUser(ctx, user)
+}
+
+func (s *userService) GetUser(ctx context.Context,ID types.ID) (*types.User, error){
+	return s.userRepo.GetUser(ctx, ID)
+}
+

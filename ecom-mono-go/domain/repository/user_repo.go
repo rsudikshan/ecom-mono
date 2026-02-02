@@ -7,12 +7,13 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-
 	"gorm.io/gorm"
 )
 
 type UserRepo interface {
 	CreateUser(ctx context.Context, user *types.User)(*types.User, error)
+	GetUser(ctx context.Context, id types.ID) (*types.User, error)
+	UpdateUser(ctx context.Context, user *types.User) (*types.User, error)
 }
 
 type userRepo struct {
@@ -26,8 +27,9 @@ func NewUserRepo(db *gorm.DB) UserRepo{
 }
 
 func (r *userRepo) CreateUser(ctx context.Context, user *types.User)(*types.User, error){
-	err:=r.db.Create(user).Error
-
+	err:=r.db.WithContext(ctx).
+	Create(user).
+	Error
 	if err!=nil {
 		if IsDuplicateError(err){
 			switch{
@@ -42,3 +44,29 @@ func (r *userRepo) CreateUser(ctx context.Context, user *types.User)(*types.User
 	}
 	return user,nil
 }
+
+func (r *userRepo) UpdateUser(ctx context.Context, user *types.User)(*types.User, error){
+	if err:=r.db.WithContext(ctx).
+	Model(types.User{}).
+	Where("id = ?", user.ID).
+	Updates(map[string]any{
+		"id":user.ID,
+		"username":user.Username,
+		"password":user.Password,
+		"email_verified":user.EmailVerified,
+		"password_reset_at":user.PasswordResetAt,
+	}).Error; err!=nil {
+		return nil,err
+	}
+	return user,nil
+}
+
+func (r *userRepo) GetUser(ctx context.Context, ID types.ID)(*types.User, error){
+	var result types.User
+	if err:=r.db.WithContext(ctx).Where("id = ?", ID).Find(&result).Error; err!=nil{
+		return nil,err
+	}
+	return &result,nil
+}
+
+

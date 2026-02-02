@@ -2,6 +2,10 @@ package types
 
 import "time"
 
+const (
+	AUTH_USER_KEY = "AUTH_USER"
+)
+
 type User struct {
 	ID 				ID
 	Email           string
@@ -15,4 +19,8 @@ type User struct {
 
 func (u User) TableName() string {
 	return "users"
+}
+
+type AuthUser struct {
+	
 }

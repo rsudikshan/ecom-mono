@@ -4,27 +4,33 @@ import (
 	//"ecom-mono-go/api/base"
 	"ecom-mono-go/api/base"
 	"ecom-mono-go/api/dtos"
+	"ecom-mono-go/api/middleware"
 	"ecom-mono-go/domain/service"
 	"ecom-mono-go/domain/types"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler interface {
 	Signup(ctx *gin.Context)
 	GetEmailVerificationLink(ctx *gin.Context)
+	VerifyEmail(ctx *gin.Context)
 }
 
 type authHandler struct {
 	userService service.UserService
 	authService service.AuthService
+	am middleware.AuthMiddleware
 	*base.Handler
 }
 
-func NewAuthHandler(h *base.Handler, userService service.UserService, authService service.AuthService) AuthHandler {
+func NewAuthHandler(h *base.Handler, userService service.UserService, authService service.AuthService, am middleware.AuthMiddleware) AuthHandler {
 	return &authHandler{
 		userService: userService,
 		authService: authService,
+		Handler: h,
+		am:am,
 	}
 }
 
@@ -52,7 +58,7 @@ func (h *authHandler) Signup(ctx *gin.Context) {
 	}
 
 
-	err = h.authService.SendEmailVerificationToken(ctx, m.Email)
+	err = h.authService.SendEmailVerificationToken(ctx, m.ID, m.Email)
 
 	if err!=nil {
 		h.HandleError(ctx, err)
@@ -64,4 +70,30 @@ func (h *authHandler) Signup(ctx *gin.Context) {
 
 func (h *authHandler) GetEmailVerificationLink(ctx *gin.Context) {
 	
+}
+
+func(h *authHandler) VerifyEmail(ctx *gin.Context) {
+	emailVerificationToken := ctx.Query("token")
+	userID, err := h.am.HandleEmailVerification(emailVerificationToken)
+	if err!=nil {
+		h.HandleError(ctx,err)
+		return
+	}
+
+	user,err := h.userService.GetUser(ctx, *userID)
+
+	if err!=nil {
+		h.HandleError(ctx,err)
+		return
+	}
+
+	user.EmailVerified = true
+	_, err = h.userService.UpdateUser(ctx, user)
+
+	if err!=nil {
+		h.HandleError(ctx,err)
+		return
+	}
+
+	h.JSON(ctx,http.StatusOK, "user verified successfully, procced to login")
 }
