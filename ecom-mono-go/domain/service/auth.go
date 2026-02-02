@@ -65,6 +65,7 @@ func (as *authService) LoginUser(ctx context.Context, user *types.User, loginPas
 		map[string]any{
 			"id":user.ID.String(),
 			"type":auth_utils.ACCESS_TOKEN,
+			"role":types.ROLE_USER,
 			"exp": time.Duration(as.env.JWT_EXPIRATION_TIME)*time.Hour,
 	} )
 }

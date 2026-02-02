@@ -16,9 +16,9 @@ import (
 )
 
 type AuthMiddleware interface {
-	HandleClient() func(ctx *gin.Context)
+	HandleClient(permission types.Permission) func(ctx *gin.Context)
 	HandleEmailVerification(token string) (*types.ID,error)
-	verfiyToken(token string, t auth_utils.TokenType) (jwt.MapClaims,*apperror.AppError)
+	verfiyToken(token string, t auth_utils.TokenType, permission *types.Permission) (jwt.MapClaims,*apperror.AppError)
 }
 
 type authMiddleware struct {
@@ -33,11 +33,11 @@ func NewAuthMiddleware(env *infrastructure.Env, base *base.Handler) AuthMiddlewa
 	}
 }
 
-func (am *authMiddleware) HandleClient() func(ctx *gin.Context){
+func (am *authMiddleware) HandleClient(permission types.Permission) func(ctx *gin.Context){
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		token := strings.TrimPrefix(authHeader, "Bearer ")
-		_,err := am.verfiyToken(token, auth_utils.ACCESS_TOKEN)
+		_,err := am.verfiyToken(token, auth_utils.ACCESS_TOKEN, &permission)
 
 		if err!=nil{
 			am.HandleError(ctx,err)
@@ -47,7 +47,7 @@ func (am *authMiddleware) HandleClient() func(ctx *gin.Context){
 }
 
 func (am *authMiddleware) HandleEmailVerification(token string) (*types.ID,error) {
-	claims,err := am.verfiyToken(token, auth_utils.EMAIL_VERIFICATION_TOKEN)
+	claims,err := am.verfiyToken(token, auth_utils.EMAIL_VERIFICATION_TOKEN, nil)
 	if err!=nil{
 		return nil,err
 	}
@@ -60,7 +60,7 @@ func (am *authMiddleware) HandleEmailVerification(token string) (*types.ID,error
 	return &userID,nil
 }
 
-func (am *authMiddleware) verfiyToken(token string, t auth_utils.TokenType) (jwt.MapClaims,*apperror.AppError) {
+func (am *authMiddleware) verfiyToken(token string, t auth_utils.TokenType, permission *types.Permission) (jwt.MapClaims,*apperror.AppError) {
 	if token == ""{
 		return nil,apperror.New(http.StatusUnauthorized, fmt.Errorf("invalid access token"))
 	}
@@ -98,6 +98,13 @@ func (am *authMiddleware) verfiyToken(token string, t auth_utils.TokenType) (jwt
 
 	if time.Now().After(exp.Time) {
 		return nil,apperror.New(http.StatusUnauthorized, fmt.Errorf("token expired"))
+	}
+
+	if auth_utils.TokenType(providedTokenType) == auth_utils.ACCESS_TOKEN && permission!=nil {
+		user_role := claims["role"].(string)
+		if !types.HasPermission(types.Role(user_role),*permission){
+			return nil,apperror.New(http.StatusUnauthorized, fmt.Errorf("not enough permission"))
+		}
 	}
 
 	return claims,nil

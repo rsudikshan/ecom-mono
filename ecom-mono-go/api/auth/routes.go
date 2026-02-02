@@ -2,6 +2,9 @@ package auth
 
 import (
 	"ecom-mono-go/api/middleware"
+	"ecom-mono-go/domain/types"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,6 +26,9 @@ func (r *AuthRoutes) Setup() {
 	r.rg.POST("/register", r.handler.Signup)
 	r.rg.POST("/email-verify", r.handler.VerifyEmail)
 	r.rg.POST("/login", r.handler.Signin)
+	r.rg.GET("/perm-test", r.am.HandleClient(types.PERMISSION_ADD_PRODUCT), func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, "E")
+	})
 	// TODO
 	// reset-password
 }
