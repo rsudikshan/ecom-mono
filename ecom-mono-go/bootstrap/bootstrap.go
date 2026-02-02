@@ -26,9 +26,7 @@ func Run() {
 
 	authMiddleware := middleware.NewAuthMiddleware(env, baseHandler, )
 
-	authHandler := auth.NewAuthHandler(baseHandler, userService, authService, authMiddleware)
-
-	
+	authHandler := auth.NewAuthHandler(baseHandler, userService, authService, authMiddleware, env)
 
 	auth.NewAuthRoutes(authHandler,router.RG, authMiddleware).Setup()
 

@@ -10,3 +10,7 @@ type UserLoginParams struct {
 	Email 	 string `json:"email"`
 	Password string `json:"password"`
 }
+
+type UserLoginResponse struct{
+	Token string `json:"auth_token"`
+}

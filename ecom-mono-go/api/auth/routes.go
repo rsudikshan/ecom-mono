@@ -22,6 +22,7 @@ func NewAuthRoutes(handler AuthHandler, rg *gin.RouterGroup, am middleware.AuthM
 func (r *AuthRoutes) Setup() {
 	r.rg.POST("/register", r.handler.Signup)
 	r.rg.POST("/email-verify", r.handler.VerifyEmail)
+	r.rg.POST("/login", r.handler.Signin)
 	// TODO
 	// reset-password
 }

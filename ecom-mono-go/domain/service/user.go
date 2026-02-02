@@ -4,11 +4,14 @@ import (
 	"context"
 	"ecom-mono-go/domain/repository"
 	"ecom-mono-go/domain/types"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService interface {
 	CreateUser(ctx context.Context, user *types.User) (*types.User, error)
 	GetUser(ctx context.Context, ID types.ID) (*types.User, error)
+	GetUserByEmail(ctx context.Context, email string) (*types.User, error)
 	UpdateUser(ctx context.Context, user *types.User) (*types.User, error)
 }
 
@@ -23,6 +26,8 @@ func NewUserService(userRepo repository.UserRepo) UserService{
 }
 
 func (s *userService) CreateUser(ctx context.Context, user *types.User) (*types.User, error){
+	hash,_ := bcrypt.GenerateFromPassword([]byte(user.Password),12)
+	user.Password = string(hash)
 	return s.userRepo.CreateUser(ctx, user)
 }
 
@@ -34,3 +39,6 @@ func (s *userService) GetUser(ctx context.Context,ID types.ID) (*types.User, err
 	return s.userRepo.GetUser(ctx, ID)
 }
 
+func (s *userService) GetUserByEmail(ctx context.Context, email string) (*types.User, error) {
+	return s.userRepo.GetUserByEmail(ctx, email)
+}

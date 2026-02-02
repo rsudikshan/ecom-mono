@@ -13,6 +13,7 @@ import (
 type UserRepo interface {
 	CreateUser(ctx context.Context, user *types.User)(*types.User, error)
 	GetUser(ctx context.Context, id types.ID) (*types.User, error)
+	GetUserByEmail(ctx context.Context, email string) (*types.User, error)
 	UpdateUser(ctx context.Context, user *types.User) (*types.User, error)
 }
 
@@ -69,4 +70,11 @@ func (r *userRepo) GetUser(ctx context.Context, ID types.ID)(*types.User, error)
 	return &result,nil
 }
 
+func (r *userRepo) GetUserByEmail(ctx context.Context, email string) (*types.User, error) {
+	var result types.User
+	if err:=r.db.WithContext(ctx).Where("email =?", email).Find(&result).Error; err!=nil{
+		return nil,err
+	}
+	return &result,nil
+}
 

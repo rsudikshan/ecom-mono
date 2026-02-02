@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	auth_utils "ecom-mono-go/api/auth/utils"
 	"ecom-mono-go/api/base"
 	"ecom-mono-go/domain/types"
 	"ecom-mono-go/infrastructure"
@@ -9,7 +10,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"ecom-mono-go/infrastructure/auth_utils"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
