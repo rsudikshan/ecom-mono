@@ -18,7 +18,7 @@ import (
 type AuthMiddleware interface {
 	HandleClient(permission types.Permission) func(ctx *gin.Context)
 	HandleEmailVerification(token string) (*types.ID,error)
-	verfiyToken(token string, t auth_utils.TokenType, permission *types.Permission) (jwt.MapClaims,*apperror.AppError)
+	verifyToken(token string, t auth_utils.TokenType, permission *types.Permission) (jwt.MapClaims,*apperror.AppError)
 }
 
 type authMiddleware struct {
@@ -37,7 +37,7 @@ func (am *authMiddleware) HandleClient(permission types.Permission) func(ctx *gi
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		token := strings.TrimPrefix(authHeader, "Bearer ")
-		_,err := am.verfiyToken(token, auth_utils.ACCESS_TOKEN, &permission)
+		_,err := am.verifyToken(token, auth_utils.ACCESS_TOKEN, &permission)
 
 		if err!=nil{
 			am.HandleError(ctx,err)
@@ -47,7 +47,7 @@ func (am *authMiddleware) HandleClient(permission types.Permission) func(ctx *gi
 }
 
 func (am *authMiddleware) HandleEmailVerification(token string) (*types.ID,error) {
-	claims,err := am.verfiyToken(token, auth_utils.EMAIL_VERIFICATION_TOKEN, nil)
+	claims,err := am.verifyToken(token, auth_utils.EMAIL_VERIFICATION_TOKEN, nil)
 	if err!=nil{
 		return nil,err
 	}
@@ -60,7 +60,7 @@ func (am *authMiddleware) HandleEmailVerification(token string) (*types.ID,error
 	return &userID,nil
 }
 
-func (am *authMiddleware) verfiyToken(token string, t auth_utils.TokenType, permission *types.Permission) (jwt.MapClaims,*apperror.AppError) {
+func (am *authMiddleware) verifyToken(token string, t auth_utils.TokenType, permission *types.Permission) (jwt.MapClaims,*apperror.AppError) {
 	if token == ""{
 		return nil,apperror.New(http.StatusUnauthorized, fmt.Errorf("invalid access token"))
 	}
