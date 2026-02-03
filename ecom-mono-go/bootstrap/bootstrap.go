@@ -5,6 +5,7 @@ import (
 	"ecom-mono-go/api/base"
 	"ecom-mono-go/api/middleware"
 	"ecom-mono-go/domain/repository"
+	"ecom-mono-go/domain/seeder"
 	"ecom-mono-go/domain/service"
 	"ecom-mono-go/infrastructure"
 	"ecom-mono-go/infrastructure/mail"
@@ -22,9 +23,11 @@ func Run() {
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthService(env, mailSender)
 
+	seeder.NewSeeder(userService,env).Seed()
+
 	baseHandler := base.NewBaseHandler()
 
-	authMiddleware := middleware.NewAuthMiddleware(env, baseHandler, )
+	authMiddleware := middleware.NewAuthMiddleware(env, baseHandler)
 
 	authHandler := auth.NewAuthHandler(baseHandler, userService, authService, authMiddleware, env)
 
