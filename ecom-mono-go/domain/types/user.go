@@ -13,14 +13,11 @@ type User struct {
 	Password        string
 	EmailVerified   bool
 	PasswordResetAt *time.Time
-
-	Base
+	Role			Role `gorm:"default:ROLE_USER"`
+	// TODO: add role field with ser/deser
+	*Base
 }
 
 func (u User) TableName() string {
 	return "users"
-}
-
-type AuthUser struct {
-	
 }

@@ -9,8 +9,8 @@ import (
 )
 
 type Base struct {
-	created_by_id 	ID
-	updated_by_id	ID
+	CreatedByID 	ID
+	UpdatedByID		ID
 	created_at 		time.Time
 	updated_at 		*time.Time
 }

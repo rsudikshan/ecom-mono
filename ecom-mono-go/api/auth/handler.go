@@ -52,11 +52,16 @@ func (h *authHandler) Signup(ctx *gin.Context) {
 		return
 	}
 
+	id := types.NewID()
 	user := &types.User{
-		ID: types.NewID(),
+		ID: id,
 		Username: registerParam.Username,
 		Password: registerParam.Password,
 		Email: registerParam.Email,
+		Base: &types.Base{
+			CreatedByID : id,
+			UpdatedByID	: id,
+		},
 	}
 
 	m, err := h.userService.CreateUser(ctx, user)
